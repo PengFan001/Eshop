@@ -10,4 +10,12 @@ public interface UserService {
 
     void register(UserModel userModel) throws BusinessException;
 
+    /**
+     *
+     * @param telephone:用户注册时所用的手机号
+     * @param encrptPassword：数据库中存放的加密过后的密码
+     * @throws BusinessException
+     */
+    UserModel validateLogin(String telephone, String encrptPassword) throws BusinessException;
+
 }
