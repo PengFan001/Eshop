@@ -10,7 +10,9 @@ public enum EmBusinessError implements CommonError {
     ERROR_OTPCODE(10003, "验证码不正确"),
 
     //20000开头表示用户信息相关的错误
-    USER_NOT_EXIST(20001, "用户不存在")
+    USER_NOT_EXIST(20001, "用户不存在"),
+
+    ERROR_USERNAME_OR_PASSWORD(20002,"用户名或密码错误"),
 
     ;
 

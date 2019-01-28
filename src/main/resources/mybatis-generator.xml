@@ -36,11 +36,21 @@
         </javaClientGenerator>
 
         <!--生成对应表和类名-->
+        <!--
         <table tableName="user_info" domainObjectName="UserDO"
                enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false"
                selectByExampleQueryId="false"></table>
         <table tableName="user_password" domainObjectName="UserPasswordDO"
+               enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false"
+               selectByExampleQueryId="false"></table>
+        -->
+        <table tableName="item" domainObjectName="ItemDO"
+               enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false"
+               selectByExampleQueryId="false"></table>
+        <table tableName="item_stock" domainObjectName="ItemStockDO"
                enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false"
                selectByExampleQueryId="false"></table>

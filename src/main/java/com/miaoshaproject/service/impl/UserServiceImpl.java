@@ -8,6 +8,8 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.service.UserService;
 import com.miaoshaproject.service.model.UserModel;
+import com.miaoshaproject.validator.ValidationResult;
+import com.miaoshaproject.validator.ValidatorImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserPasswordDOMapper userPasswordDOMapper;
+
+    @Autowired
+    private ValidatorImpl validator;
 
     //按用户ID来寻找用户
     @Override
@@ -48,11 +53,17 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(EmBusinessError.PARAMENTER_VAILDATION_ERROR);
         }
 
-        if (StringUtils.isEmpty(userModel.getName())
-                || userModel.getGender() == null
-                || userModel.getAge() == null
-                || StringUtils.isEmpty(userModel.getTelephone())){
-            throw new BusinessException(EmBusinessError.PARAMENTER_VAILDATION_ERROR);
+//        if (StringUtils.isEmpty(userModel.getName())
+//                || userModel.getGender() == null
+//                || userModel.getAge() == null
+//                || StringUtils.isEmpty(userModel.getTelephone())){
+//            throw new BusinessException(EmBusinessError.PARAMENTER_VAILDATION_ERROR);
+//        }
+
+
+        ValidationResult result = validator.validate(userModel);
+        if (result.isHasErrors()){
+            throw new BusinessException(EmBusinessError.PARAMENTER_VAILDATION_ERROR, result.getErrMsg());
         }
 
         //实现从model->dataObjects
@@ -67,6 +78,26 @@ public class UserServiceImpl implements UserService {
 
         UserPasswordDO userPasswordDO = convertPasswordFromModel(userModel);
         userPasswordDOMapper.insertSelective(userPasswordDO);
+    }
+
+    //实现用户登录的功能
+    @Override
+    public UserModel validateLogin(String telephone, String encrptPassword) throws BusinessException {
+
+        UserDO userDO = userDOMapper.selectByTelephone(telephone);
+        if(userDO == null){
+            throw new BusinessException(EmBusinessError.USER_NOT_EXIST);
+        }
+
+        UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getId());
+        UserModel userModel = convertFromDataObject(userDO, userPasswordDO);
+
+        if(!StringUtils.equals(encrptPassword, userModel.getEncrptPassword())){
+            throw new BusinessException(EmBusinessError.ERROR_USERNAME_OR_PASSWORD);
+        }
+
+        return userModel;
+
     }
 
 
