@@ -14,6 +14,11 @@ public enum EmBusinessError implements CommonError {
 
     ERROR_USERNAME_OR_PASSWORD(20002,"用户名或密码错误"),
 
+    USER_NOT_LOGIN(20003, "用户还未登录"),
+
+    //30000开头表示交易中出现的错误
+    STOCK_NOT_ENOUGH(30001, "库存不足"),
+
     ;
 
     private int errCode;

@@ -29,7 +29,6 @@ public class UserController extends BaseController{
     @Autowired
     private HttpServletRequest httpServletRequest;
 
-
     //用户获取短信验证码的接口
     //value、method、consumes字段用于前后端分离时，后端对前端数据请求时的识别
     @RequestMapping(value = "/getOtp", method = {RequestMethod.POST}, consumes = CONTENT_TYPE_FORMED)

@@ -111,6 +111,29 @@ public class ItemServiceImpl implements ItemService {
         return itemModel;
     }
 
+    //库存的扣减
+    @Override
+    @Transactional
+    public boolean decreaseStock(Integer itemId, Integer amount) {
+
+        //当库存不够数量是会返回0 表明更新失败， 否则表明更新成功
+        int affectedRow = itemStockDOMapper.decreaseStock(itemId, amount);
+
+        if (affectedRow > 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    //商品的销量增加了
+    @Override
+    @Transactional
+    public void increaseSales(Integer itemId, Integer amount) {
+        itemDOMapper.increaseSales(itemId, amount);
+    }
+
     private ItemModel convertItemModelFromDataObject(ItemDO itemDO, ItemStockDO itemStockDO){
         if (itemDO == null || itemStockDO == null){
             return null;
