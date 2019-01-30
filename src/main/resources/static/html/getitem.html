@@ -9,6 +9,14 @@
 <body class="text-center">
 <div>
     <h3 class="h3 mb-3 font-weight-bold">商品详情浏览</h3>
+
+    <div id="promoStartContainer">
+        <label style="color: red" class="font-weight-bold"></label>
+        <div>
+            <label style="color: red" class="control-label" type="text" id="promoStartPrice"></label>
+        </div>
+    </div>
+
     <div>
         <label class="font-weight-bold">商品名</label>
         <div>
@@ -32,10 +40,18 @@
     </div>
     <p></p>
 
-    <div>
+    <div id="normalPriceContainer">
         <label class="font-weight-bold">价格</label>
         <div>
             <label class="control-label" type="text" id="price"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div id="promoPriceContainer">
+        <label style="color: red" class="font-weight-bold">秒杀价格</label>
+        <div>
+            <label style="color: red" class="control-label" type="text" id="promoPrice"></label>
         </div>
     </div>
     <p></p>
@@ -92,6 +108,7 @@
                 data:{
                     "itemId":g_itemVO.id,
                     "amount":1,
+                    "promoId":g_itemVO.promoId,
                 },
                 xhrFields:{withCredentials:true},
                 success:function (data) {
@@ -124,6 +141,7 @@
                 if(data.status == "success"){
                     g_itemVO = data.data;
                     reloadDom();
+                    setInterval(reloadDom, 1000); //此处的作用是每隔1秒钟对界面进行一次刷新
                 }
                 else {
                     alert("获取信息失败，原因为"+data.data.errMsg);
@@ -142,6 +160,31 @@
        $("#price").text(g_itemVO.price);
        $("#stock").text(g_itemVO.stock);
        $("#sales").text(g_itemVO.sales);
+
+       if (g_itemVO.promoStatus == 1){
+
+           var startTime = g_itemVO.startDate.replace(new RegExp("-", "gm"), "/");
+           startTime = (new Date(startTime)).getTime();
+           var nowTime = Date.parse(new Date());
+           var delta = (startTime - nowTime) / 1000;
+
+           if(delta <= 0){      //此时秒杀活动开始
+               g_itemVO.promoStatus = 2;
+               reloadDom();
+           }
+
+            //秒杀活动还未开始
+           $("#promoStartPrice").text("秒杀活动将在"+g_itemVO.startDate+"进行 倒计时:"+delta+"秒");
+           $("#promoPrice").text(g_itemVO.promoPrice);
+           $("#promoPriceContainer").hide();
+           $("#createOrder").attr("disabled", true);
+       }else if(g_itemVO.promoStatus == 2){
+           $("#promoStartPrice").text("秒杀活动正在进行中");
+           $("#promoPrice").text(g_itemVO.promoPrice);
+           $("#createOrder").attr("disabled", false);
+           $("#normalPriceContainer").hide();
+       }
+       
     }
 
 </script>

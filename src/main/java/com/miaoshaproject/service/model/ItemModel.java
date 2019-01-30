@@ -27,6 +27,9 @@ public class ItemModel {
     @NotBlank(message = "图片信息不能为空")
     private String imgUrl;
 
+    //使用聚合模型， 如果PromoModel不为空，则表示器拥有还未结束的秒杀活动
+    private PromoModel promoModel;
+
     public Integer getId() {
         return id;
     }
@@ -79,7 +82,16 @@ public class ItemModel {
         return imgUrl;
     }
 
-    public void setImgUrl(String imgUrl) {
+    public void setImgUrl(String imgUrl)
+    {
         this.imgUrl = imgUrl;
+    }
+
+    public PromoModel getPromoModel() {
+        return promoModel;
+    }
+
+    public void setPromoModel(PromoModel promoModel) {
+        this.promoModel = promoModel;
     }
 }
