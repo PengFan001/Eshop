@@ -177,12 +177,14 @@
            $("#promoStartPrice").text("秒杀活动将在"+g_itemVO.startDate+"进行 倒计时:"+delta+"秒");
            $("#promoPrice").text(g_itemVO.promoPrice);
            $("#promoPriceContainer").hide();
-           $("#createOrder").attr("disabled", true);
+           // $("#createOrder").attr("disabled", true);
        }else if(g_itemVO.promoStatus == 2){
            $("#promoStartPrice").text("秒杀活动正在进行中");
            $("#promoPrice").text(g_itemVO.promoPrice);
            $("#createOrder").attr("disabled", false);
            $("#normalPriceContainer").hide();
+       }else {
+           $("#promoPriceContainer").hide();
        }
        
     }
