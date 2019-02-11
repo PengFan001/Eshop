@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情浏览</title>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body class="text-center">
+<div>
+    <h3 class="h3 mb-3 font-weight-bold">商品详情浏览</h3>
+
+    <div id="promoStartContainer">
+        <label style="color: red" class="font-weight-bold"></label>
+        <div>
+            <label style="color: red" class="control-label" type="text" id="promoStartPrice"></label>
+        </div>
+    </div>
+
+    <div>
+        <label class="font-weight-bold">商品名</label>
+        <div>
+           <label class="control-label" type="text" id="title"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div>
+        <label class="font-weight-bold">商品描述</label>
+        <div>
+            <label class="control-label" type="text" id="description"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div>
+        <div>
+            <img style="width: 200px; height: auto" id="imgUrl">
+        </div>
+    </div>
+    <p></p>
+
+    <div id="normalPriceContainer">
+        <label class="font-weight-bold">价格</label>
+        <div>
+            <label class="control-label" type="text" id="price"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div id="promoPriceContainer">
+        <label style="color: red" class="font-weight-bold">秒杀价格</label>
+        <div>
+            <label style="color: red" class="control-label" type="text" id="promoPrice"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div>
+        <label class="font-weight-bold">库存</label>
+        <div>
+            <label class="control-label" type="text" id="stock"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div>
+        <label class="font-weight-bold">销量</label>
+        <div>
+            <label class="control-label" type="text" id="sales"></label>
+        </div>
+    </div>
+    <p></p>
+
+    <div class="form-actions">
+        <button id="createOrder" type="submit" class="btn btn-primary">
+            下单
+        </button>
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+    var g_itemVO = {};
+
+    //从上一个页面获得传过来的参数信息,固定写法之一
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = unescape(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++
+        }
+        return paramValue == "" && (paramValue = null), paramValue
+    }
+
+    //前后端分离开发模式下的前端对后端进行数据请求,获取商品详情
+    jQuery(document).ready(function () {
+
+        //下单按钮的点击事件
+        $("#createOrder").on("click", function () {
+            $.ajax({
+                type: "POST",
+                contentType:"application/x-www-form-urlencoded",
+                url:"http://localhost:8090/order/createOrder",
+                data:{
+                    "itemId":g_itemVO.id,
+                    "amount":1,
+                    "promoId":g_itemVO.promoId,
+                },
+                xhrFields:{withCredentials:true},
+                success:function (data) {
+                    if(data.status == "success"){
+                        alert("下单成功");
+                        window.location.reload();
+                    }
+                    else {
+                        alert("下单失败，原因为"+data.data.errMsg);
+                        if (data.data.errCode == 20003){
+                            window.location.href = "login.html";
+                        }
+                    }
+                },
+                error:function (data) {
+                    alert("下单失败，原因为"+data.responseText);
+                }
+            });
+        });
+
+        //对后端数据的获取请求
+        $.ajax({
+            type: "GET",
+            url:"http://localhost:8090/item/get",
+            data:{
+              "id": getParam("id"),
+            },
+            xhrFields:{withCredentials:true},
+            success:function (data) {
+                if(data.status == "success"){
+                    g_itemVO = data.data;
+                    reloadDom();
+                    setInterval(reloadDom, 1000); //此处的作用是每隔1秒钟对界面进行一次刷新
+                }
+                else {
+                    alert("获取信息失败，原因为"+data.data.errMsg);
+                }
+            },
+            error:function (data) {
+                alert("获取信息失败，原因为"+data.responseText);
+            }
+        });
+    });
+
+    function reloadDom() {
+       $("#title").text(g_itemVO.title);
+       $("#description").text(g_itemVO.description);
+       $("#imgUrl").attr("src", g_itemVO.imgUrl);
+       $("#price").text(g_itemVO.price);
+       $("#stock").text(g_itemVO.stock);
+       $("#sales").text(g_itemVO.sales);
+
+       if (g_itemVO.promoStatus == 1){
+
+           var startTime = g_itemVO.startDate.replace(new RegExp("-", "gm"), "/");
+           startTime = (new Date(startTime)).getTime();
+           var nowTime = Date.parse(new Date());
+           var delta = (startTime - nowTime) / 1000;
+
+           if(delta <= 0){      //此时秒杀活动开始
+               g_itemVO.promoStatus = 2;
+               reloadDom();
+           }
+
+            //秒杀活动还未开始
+           $("#promoStartPrice").text("秒杀活动将在"+g_itemVO.startDate+"进行 倒计时:"+delta+"秒");
+           $("#promoPrice").text(g_itemVO.promoPrice);
+           $("#promoPriceContainer").hide();
+           // $("#createOrder").attr("disabled", true);
+       }else if(g_itemVO.promoStatus == 2){
+           $("#promoStartPrice").text("秒杀活动正在进行中");
+           $("#promoPrice").text(g_itemVO.promoPrice);
+           $("#createOrder").attr("disabled", false);
+           $("#normalPriceContainer").hide();
+       }else {
+           $("#promoPriceContainer").hide();
+       }
+       
+    }
+
+</script>
+
+</html>
